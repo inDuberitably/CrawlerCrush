@@ -71,6 +71,4 @@ class CrushAnalysis
 	private :define_target, :define_target_arr
 end
 
-CA = CrushAnalysis.new("WRIGHT_CRUSHES_asText.txt","WRIGHT_CRUSHES_asText.txt", "StopWords.txt")
 
-CA.print_hash CA.find_context("1:45")
