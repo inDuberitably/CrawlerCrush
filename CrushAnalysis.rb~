@@ -25,11 +25,10 @@ class CrushAnalysis
 	def create_hash(target)
 		target_text_hash = {}
 		tweets = target
-
 		tweets.each_line do |tweet|
 			txt = tweet
 			txt.downcase!
-			words = txt.scan(/[(\W+'\w+)]([^ -?".!,()]*)/).flatten.select{|w| w.length > 2}
+			words = txt.scan(/(\w+)([^ ?."!,)()]*)/).flatten.select{|w| w.length > 1}
 			words.each do |word|
 				if !@stop_words_arr.include?(word) or !@stop_time_arr.include?(word)
 					target_text_hash[word] ||= 0
@@ -39,7 +38,7 @@ class CrushAnalysis
 		end
 
 		target_text_hash=Hash[target_text_hash.sort_by{|k,v|v}]
-		return target_text_hash
+	return target_text_hash
 	end
 
 	def print_stop_words()
@@ -47,29 +46,18 @@ class CrushAnalysis
 	end
 	def find_context(target)
 		context = target.downcase
-		str = ""
-		arr = context.scan(/\w+/).flatten
-		i = 0
-		while(i < arr.length )
-			if arr.length  == 1  
-				str = "#{arr[i]}"
-			else
-				str = "#{str}#{arr[i]} "
-			end
-			i+=1
-		end
-		str.strip!
-		puts str == context
-		if  @target_text_hash.has_key?(str) or @original_target_arr.include?(context)
-			puts "#{target} exists."
-		else
-			puts "#{target} does not exist"
+		if @target_text_hash.has_key?(context)
+			puts " #{target} exists."
 		end
 	end
 	def print_most_used_words()
 		@target_text_hash.each{|key, value| puts "#{key} : #{value}"  }
 	end
 	def print_unique_words()
+		i = 0
+		while (i < @target_text_hash.length)
+		if(@target_text_hash.has_value? > 1)
+
 
 	end
 	def print_tweets()
@@ -87,8 +75,4 @@ class CrushAnalysis
 	private :define_target, :define_target_arr
 end
 
-CA = CrushAnalysis.new("WRIGHT_CRUSHES_asText.txt","WRIGHT_CRUSHES_asText.txt", "StopWords.txt")
 
-CA.print_hash
-CA.find_context("Tim Horton")
-CA.find_context("Scott")
