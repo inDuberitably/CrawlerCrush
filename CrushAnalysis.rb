@@ -50,20 +50,17 @@ class CrushAnalysis
 		str = ""
 		arr = context.scan(/\w+/).flatten
 		i = 0
-		while(i < arr.length )
-			if arr.length  == 1  
-				str = "#{arr[i]}"
-			else
-				str = "#{str}#{arr[i]} "
+		result = 0
+		while(i < arr.length)
+			if  @target_text_hash.has_key?(arr[i]) and @original_target.downcase.include? (arr[i])
+				result += 1
 			end
 			i+=1
 		end
-		str.strip!
-		puts str == context
-		if  @target_text_hash.has_key?(str) or @original_target_arr.include?(context)
-			puts "#{target} exists."
+		if result == arr.length
+			puts "#{target} exists!"
 		else
-			puts "#{target} does not exist"
+			puts "#{target} does not exist!"
 		end
 	end
 	def print_most_used_words()
