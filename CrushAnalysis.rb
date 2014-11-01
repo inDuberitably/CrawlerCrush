@@ -46,19 +46,20 @@ class CrushAnalysis
 		puts @stop_words_arr
 	end
 	def find_context(target)
-		context = target.downcase
-		str = ""
-		arr = context.scan(/\w+/).flatten
-		i = 0
-		result = 0
-		while(i < arr.length)
-			if  @target_text_hash.has_key?(arr[i]) and @original_target.downcase.include? (arr[i])
-				result += 1
+		if @original_target.include? (target)
+			context = target.downcase
+			arr = context.scan(/\w+/).flatten
+			i = 0
+			result = 0
+			while(i < arr.length)
+				if  @target_text_hash.has_key?(arr[i])
+					result += 1
+				end
+				i+=1
 			end
-			i+=1
-		end
-		if result == arr.length
-			puts "#{target} exists!"
+			if result == arr.length
+				puts "#{target} exists!"
+			end
 		else
 			puts "#{target} does not exist!"
 		end
@@ -88,4 +89,4 @@ CA = CrushAnalysis.new("WRIGHT_CRUSHES_asText.txt","WRIGHT_CRUSHES_asText.txt", 
 
 CA.print_hash
 CA.find_context("Tim Horton")
-CA.find_context("Scott")
+CA.find_context("Scott Shirt Girl")
