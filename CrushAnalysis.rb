@@ -1,3 +1,20 @@
+class WordObj
+	@@indices = Array.new
+	attr_accessor :word, :indices, :occurences
+	attr_writer :word,:indices, :occurences
+	def initalize()
+		@word = ""
+		@occurences = 0
+		@indices << self
+	end
+	def self.all_instances
+		@indices << self
+	end
+	def toString()
+		rep="Word:#{word.inspect}\nIndices:#{indices.inspect}\nOccurences:#{occurences.inspect}"
+		return rep
+	end
+end
 class CrushAnalysis
 	def initialize (tweets,tweets_arr, stopwords)
 		@original_target = define_target(tweets)
@@ -7,12 +24,15 @@ class CrushAnalysis
 		@stop_words_arr = File.open(stopwords).read.split("\n")
 		@original_target_arr =define_target_arr(tweets_arr)
 		@target_text_hash = create_hash(@original_target)
+		@target_words_obj_arr = create_word_obj()
 	end
+	attr_accessor :target_text_hash, :target_words_obj_arr, :original_target_arr
 
 	def define_target(tweets)
 		@original_target = File.open(tweets).read
 		return @original_target
 	end
+
 	def define_target_arr(tweets)
 		i = 0
 		arr = []
@@ -42,13 +62,36 @@ class CrushAnalysis
 		return target_text_hash
 	end
 
-	def print_stop_words()
-		puts @stop_words_arr
+	def create_word_obj()
+		index_hash =@target_text_hash
+		words_arr = []
+		index_hash.each do |key, value|
+			word_obj = WordObj.new
+			i = 0 # index for array
+			x = 0
+			temp_arr = []
+			word_obj.word = key
+			word_obj.occurences = value
+			@original_target_arr.each do |tweet|
+				tweet.gsub!(/["]/, "")
+				if tweet.downcase.split.include? key
+					temp_arr[x] = i
+					x += 1
+				end
+				i += 1
+				word_obj.indices = temp_arr.compact
+			end
+
+
+			words_arr << word_obj
+		end
+
+		return words_arr
 	end
 	def find_context(target)
 		if @original_target.include? (target)
 			context = target.downcase
-			arr = context.scan(/\w+/).flatten
+			arr 	= context.scan(/\w+/).flatten
 			i = 0
 			result = 0
 			while(i < arr.length)
@@ -60,33 +103,17 @@ class CrushAnalysis
 			if result == arr.length
 				puts "#{target} exists!"
 			end
-		else
-			puts "#{target} does not exist!"
 		end
+		def print_most_used_words()
+			@target_text_hash.each{|key, value| puts "#{key} : #{value}"  }
+		end
+		def print_tweets()
+			puts @original_target
+		end
+		private :define_target, :define_target_arr, :create_word_obj
 	end
-	def print_most_used_words()
-		@target_text_hash.each{|key, value| puts "#{key} : #{value}"  }
-	end
-	def print_unique_words()
-
-	end
-	def print_tweets()
-		puts @original_target
-	end
-
-	def print_hash()
-		puts @target_text_hash.inspect
-		puts @target_text_hash.class
-	end
-
-	def print_arr()
-		@original_target_arr.cycle(1){|x| puts x}
-	end
-	private :define_target, :define_target_arr
 end
-
 CA = CrushAnalysis.new("WRIGHT_CRUSHES_asText.txt","WRIGHT_CRUSHES_asText.txt", "StopWords.txt")
 
-CA.print_hash
-CA.find_context("Tim Horton")
-CA.find_context("Scott Shirt Girl")
+puts CA.target_words_obj_arr[1].toString
+puts CA.original_target_arr[1]
