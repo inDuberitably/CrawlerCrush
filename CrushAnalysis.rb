@@ -19,25 +19,33 @@ class WordObj
 	the root would be head, returning all the instances of 
 	head in "headphones". 		
 =end
-	def link_roots(root_word)
-		#while self.has_children or root_word.has_children
-			if self.word.downcase.include? root_word.word.downcase or root_word.word.downcase.include? self.word.downcase
-				sum_of_occurences = self.occurences + root_word.occurences
-				word_root = ""
-				linked_indices = []
-				linked_indices= self.indices  | root_word.indices
-
-				if self.word.length < root_word.word.length
-					word_root = self.word
-					return WordObj.new(word_root, sum_of_occurences, linked_indices, root_word)
-				else
-					word_root = root_word.word
-					return WordObj.new(word_root, sum_of_occurences, linked_indices, self)
-				end
+	def link(root_word)
+		if self.word.downcase.include? root_word.word.downcase or root_word.word.downcase.include? self.word.downcase
+			sum_of_occurences = self.occurences + root_word.occurences
+			word_root = ""
+			linked_indices = []
+			linked_indices= self.indices  | root_word.indices
+			if self.word.length < root_word.word.length
+				word_root = self.word
+				return WordObj.new(word_root, sum_of_occurences, linked_indices, root_word)
 			else
-				raise "Failed to link roots"
+				word_root = root_word.word
+				return WordObj.new(word_root, sum_of_occurences, linked_indices, self)
 			end
-		#end
+		else
+			raise "Unable to link WordObjects"
+		end
+	end
+	def link_roots(root_word)
+		node =	link(root_word)
+		puts node.inspect
+		if !node.has_children()
+			puts "here"
+			node =	node.child.link(node)
+			return node
+		else
+			return link_roots(node)
+		end
 	end
 =begin
 	Finds all links between a given WordObj 
@@ -188,7 +196,7 @@ end
 #CA.find_context("head")
 #CA.print_most_used_words
 W0 = WordObj.new("head",1, [1,2,3],nil)
-W2 = WordObj.new("headshot",2,[7],nil)
-W1 = WordObj.new("headphones",3,[1,33,3,5],W2)
-W3 =W0.link_roots(W1)
+W1 = WordObj.new("headphones",3,[1,33,3,5],nil)
+W2 = WordObj.new("headshot",2,[7],W1)
+W3 =W0.link_roots(W2)
 puts W3.toString
