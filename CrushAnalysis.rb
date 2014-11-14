@@ -1,78 +1,54 @@
 class WordObj
 	@@indices = Array.new
-	@@child = WordObj.new
-	attr_accessor :word, :indices, :occurences, :child
-	attr_writer :word,:indices, :occurences, :child
-	def initialize(word, occurences, indices, child)
+	attr_accessor :word, :occurences, :indices
+	def initialize(word, occurences, indices) #
 		@word = word
-		@occurences = occurences
+		@word_s = "#{word}"
 		@indices = indices
-		@child = child
+		@occurences = occurences
+		@child = []
 	end
+
 	def self.all_instances
 		@indices << self
 	end
+	
+	def add_edge(child)
+		@child << child
+	end
+	
+	def to_s
+		"#{@word_s} -> [#{@child.map(&:word).join(' ')}]" 
+	end
+	
+	def rep
+		return "Word:#{self.word}\nOccurences:#{self.occurences}\nIndices:#{self.indices}\n"
+		
+	end
 
-=begin
-	link roots takes two nodes and creates the "root". 
-	For instance, if the words were "head" and "headphones" 
-	the root would be head, returning all the instances of 
-	head in "headphones". 		
-=end
-	def link(root_word)
-		if self.word.downcase.include? root_word.word.downcase or root_word.word.downcase.include? self.word.downcase
-			sum_of_occurences = self.occurences + root_word.occurences
-			word_root = ""
-			linked_indices = []
-			linked_indices= self.indices  | root_word.indices
-			if self.word.length < root_word.word.length
-				word_root = self.word
-				return WordObj.new(word_root, sum_of_occurences, linked_indices, root_word)
-			else
-				word_root = root_word.word
-				return WordObj.new(word_root, sum_of_occurences, linked_indices, self)
-			end
-		else
-			raise "Unable to link WordObjects"
-		end
+end
+
+class WordGraph
+	def initialize
+		@word_objs = {}
 	end
-	def link_roots(root_word)
-		node =	link(root_word)
-		puts node.inspect
-		if !node.has_children()
-			puts "here"
-			node =	node.child.link(node)
-			return node
-		else
-			return link_roots(node)
-		end
+
+	def add_node(node)
+		@word_objs[node.word] = node
 	end
-=begin
-	Finds all links between a given WordObj 
-	and produces a string representation of
-	the traversal
-=end	
-	def toString()
-		rep = ""
-		node = self
-		rep << "Word:#{node.word}\nOccurences:#{node.occurences}\nIndices:#{node.indices}\n"
-		while !node.has_children()
-			node = node.child
-			rep << "Word:#{node.word}\nOccurences:#{node.occurences}\nIndices:#{node.indices}\n"
-		end
-		return rep
+	
+	def add_edge(parent, child)
+		@word_objs.fetch(parent).add_edge(@word_objs[child])
 	end
-	def has_children()
-		begin
-			if self.child.nil?
-				return true
-			else
-				return false
-			end
-		rescue NoMethodError => e
-			return true
-		end
+
+	def [](name)
+		"#{@word_objs[name].rep}" "#{@word_objs[name]}"
 	end
+
+	def print_graph()
+		puts "#{@word_objs.inspect}"
+	end
+
 end
 class CrushAnalysis
 	def initialize (tweets,tweets_arr, stopwords)
@@ -133,7 +109,7 @@ class CrushAnalysis
 		index_hash =@target_text_hash
 		words_arr = []
 		index_hash.each do |key, value|
-			word_obj = WordObj.new
+			word_obj = WordObj.new("",0,[],nil)
 			i = 0 # index for array
 			x = 0
 			temp_arr = []
@@ -169,6 +145,7 @@ class CrushAnalysis
 				i+=1
 			end
 			if result == arr.length
+				puts "here"
 				puts "#{target} exists!"
 				i = 0
 				while (i < @target_words_obj_arr.length)
@@ -193,10 +170,17 @@ class CrushAnalysis
 end
 
 #CA = CrushAnalysis.new("WRIGHT_CRUSHES_asText.txt","WRIGHT_CRUSHES_asText.txt", "StopWords.txt")
-#CA.find_context("head")
+#CA.find_context("girl")
 #CA.print_most_used_words
-W0 = WordObj.new("head",1, [1,2,3],nil)
-W1 = WordObj.new("headphones",3,[1,33,3,5],nil)
-W2 = WordObj.new("headshot",2,[7],W1)
-W3 =W0.link_roots(W2)
-puts W3.toString
+W0 = WordObj.new(:head, 1, [1,2,3])
+W1 = WordObj.new(:headphones,  1, [1,2,3])
+W2 = WordObj.new(:headshot,  1, [1,2,3])
+WG = WordGraph.new
+WG.add_node(W0)
+WG.add_node(W1)
+WG.add_node(W2)
+WG.add_edge(:headphones, :head)
+#WG.add_edge(:head, :headshot)
+#WG.add_edge(:headshot, :headphones)
+
+puts WG[:headphones]
