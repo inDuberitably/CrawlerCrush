@@ -1,79 +1,5 @@
-class WordObj
-	@@indices = Array.new
-	attr_accessor :word, :occurences, :indices
-	def initialize(word, occurences, indices) #
-		@word = word
-		@indices = indices
-		@occurences = occurences
-		@child = []
-	end
-
-	def self.all_instances
-		@indices << self
-	end
-
-	def add_edge(child)
-		@child << child
-	end
-
-	def remove_edge(node)
-		@child.delete(node)
-		if @child.include? node
-			return false
-		else
-			return true
-		end
-	end
-
-	def has_children()
-		if !@child.nil?
-			return false
-		else
-			return true
-		end
-	end
-
-	def to_s
-		"#{@word.to_s} -> [#{@child.map(&:word).join(' ')}]"
-	end
-
-	def rep
-		return "Word:#{self.word}\nOccurences:#{self.occurences}\nIndices:#{self.indices}\n"
-
-	end
-
-end
-
-class WordGraph
-	def initialize
-		@word_objs = {}
-	end
-
-	def add_node(node)
-		@word_objs[node.word] = node
-	end
-
-	def remove_node(node)
-		@word_objs[node.word] = nil
-		@word_objs.delete_if {|k,v| v.nil?}
-	end
-
-	def remove_edge(parent, child)
-		target=@word_objs.fetch(parent.word)
-		self.remove_node(parent)
-		target.remove_edge(child)
-		self.add_node(target)
-	end
-
-	def add_edge(parent, child)
-		@word_objs.fetch(parent).add_edge(@word_objs[child])
-	end
-
-	def [](name)
-		"#{@word_objs[name].rep}" "#{@word_objs[name]}"
-	end
-end
-class CrushAnalysis{
+require 'WordGraph'
+class CrushAnalysis
 	def initialize (tweets,tweets_arr, stopwords)
 		@original_target = define_target(tweets)
 		@stop_word_dictionary = File.open(stopwords).read
@@ -82,10 +8,10 @@ class CrushAnalysis{
 		@stop_words_arr = File.open(stopwords).read.split("\n")
 		@original_target_arr =define_target_arr(tweets_arr)
 		@target_text_hash = create_hash(@original_target)
-		@target_words_obj_graph = create_word_obj()
+		@target_words_obj_arr = create_word_obj()
 	end
 
-	attr_accessor :target_text_hash, :target_words_obj_graph, :original_target_arr
+	attr_accessor :target_text_hash, :target_words_obj_arr, :original_target_arr
 	def define_target(tweets)
 		@original_target = File.open(tweets).read
 		return @original_target
@@ -189,10 +115,5 @@ class CrushAnalysis{
 	def print_tweets()
 		puts @original_target
 	end
-	private :print_indices, :define_target, :define_target_arr, :create_word_obj}
+	private :print_indices, :define_target, :define_target_arr, :create_word_obj
 end
-=begin
-CA = CrushAnalysis.new("WRIGHT_CRUSHES_asText.txt","WRIGHT_CRUSHES_asText.txt", "StopWords.txt")
-CA.find_context("girl")
-CA.print_most_used_words
-=end
