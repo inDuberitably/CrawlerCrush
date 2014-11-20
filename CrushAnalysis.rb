@@ -1,5 +1,7 @@
-require 'WordGraph'
+require './WordGraph'
+
 class CrushAnalysis
+	attr_accessor :target_text_hash, :target_words_obj_arr, :original_target_arr
 	def initialize (tweets,tweets_arr, stopwords)
 		@original_target = define_target(tweets)
 		@stop_word_dictionary = File.open(stopwords).read
@@ -9,9 +11,9 @@ class CrushAnalysis
 		@original_target_arr =define_target_arr(tweets_arr)
 		@target_text_hash = create_hash(@original_target)
 		@target_words_obj_arr = create_word_obj()
+		@word_adjacency_list = generate_graph()
 	end
 
-	attr_accessor :target_text_hash, :target_words_obj_arr, :original_target_arr
 	def define_target(tweets)
 		@original_target = File.open(tweets).read
 		return @original_target
@@ -58,7 +60,7 @@ class CrushAnalysis
 		index_hash =@target_text_hash
 		words_arr = []
 		index_hash.each do |key, value|
-			word_obj = WordObj.new("",0,[],nil)
+			word_obj = WordObj.new("",0,[])
 			i = 0 # index for array
 			x = 0
 			temp_arr = []
@@ -75,39 +77,29 @@ class CrushAnalysis
 				i += 1
 				word_obj.indices = temp_arr.compact
 			end
-
-
 			words_arr << word_obj
 		end
 		return words_arr
 	end
-	def find_context(target)
-		if @original_target.downcase.include? (target.downcase) or @original_target.upcase.include? (target.upcase)
-			context = target.downcase
-			arr 	= context.scan(/\w+/).flatten
-			i = 0
-			result = 0
-			while(i < arr.length)
-				if  @target_text_hash.has_key?(arr[i])
-					result += 1
-				end
-				i+=1
-			end
-			if result == arr.length
-				puts "here"
-				puts "#{target} exists!"
-				i = 0
-				while (i < @target_words_obj_arr.length)
-					if target_words_obj_arr[i].word == context
-						puts target_words_obj_arr[i].toString
-						print_indices(target_words_obj_arr[i])
-					end
-					i+=1
+
+	def generate_graph()
+		i = 0
+		word_graph = WordGraph.new
+		word = WordObj.new("",0,[])
+		while (i <@target_words_obj_arr.length)
+			word = @target_words_obj_arr[i]
+			@target_words_obj_arr.each do |w|
+				if word.word.include? w.word
+					word.add_edge(w)
 				end
 			end
-		else
-			puts "#{target} does not exist."
+			word_graph.add_node(word)
+			i += 1
 		end
+		return word_graph
+	end
+	def [](key)
+		puts @word_adjacency_list[key]
 	end
 	def print_most_used_words()
 		@target_text_hash.each{|key, value| puts "#{key} : #{value}"  }
@@ -117,3 +109,4 @@ class CrushAnalysis
 	end
 	private :print_indices, :define_target, :define_target_arr, :create_word_obj
 end
+
