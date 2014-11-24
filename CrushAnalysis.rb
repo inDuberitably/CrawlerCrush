@@ -97,14 +97,14 @@ class CrushAnalysis
 		@target_text_hash.each{|key, value| puts "#{key} : #{value}"  }
 	end
 	def print_unique_words()
-		puts @word_adjacency_list.nodes_reflexive.length
+		puts @word_adjacency_list.nodes_reflexive
 
 	end
 	def print_tweets()
 		puts @original_target
 	end
 	def print_graph_neighbors()
-		puts @word_adjacency_list.nodes_with_neighbors().length
+		puts @word_adjacency_list.nodes_with_neighbors()
 	end
 	def find_context(target_context)
 		if (@original_target.include? target_context.downcase or @original_target.include? target_context.upcase)
