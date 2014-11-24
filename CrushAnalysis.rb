@@ -48,14 +48,6 @@ class CrushAnalysis
 		return target_text_hash
 	end
 
-	def print_indices(tweet_indicies)
-		i = 0
-		while(i < tweet_indicies.indices.length)
-			x = tweet_indicies.indices[i]
-			puts " Tweet #{x}: #{original_target_arr[x]}"
-			i +=1
-		end
-	end
 	def create_word_obj()
 		index_hash =@target_text_hash
 		words_arr = []
@@ -104,9 +96,36 @@ class CrushAnalysis
 	def print_most_used_words()
 		@target_text_hash.each{|key, value| puts "#{key} : #{value}"  }
 	end
+	def print_unique_words()
+		puts @word_adjacency_list.nodes_reflexive.length
+
+	end
 	def print_tweets()
 		puts @original_target
 	end
-	private :print_indices, :define_target, :define_target_arr, :create_word_obj
+	def print_graph_neighbors()
+		puts @word_adjacency_list.nodes_with_neighbors().length
+	end
+	def find_context(target_context)
+		if (@original_target.include? target_context.downcase or @original_target.include? target_context.upcase)
+			clue =	@word_adjacency_list.recover_node(target_context)
+			self.print_indices(clue.word)
+			puts "#{clue.rep}#{clue.to_s}\n"
+		else
+			puts "couldn't find #{target_context} :("
+		end
+	end
+
+	def print_indices(key)
+		word_obj = @word_adjacency_list.recover_node(key)
+		i = 0
+		tweets_arr = word_obj.indices
+		while(i < tweets_arr.length)
+			x = tweets_arr[i]
+			puts " Tweet #{x}: #{original_target_arr[x]}"
+			i +=1
+		end
+	end
+	private  :define_target, :define_target_arr, :create_word_obj, :generate_graph
 end
 

@@ -26,10 +26,17 @@ class WordObj
 	end
 
 	def has_children()
-		if !@child.nil?
+		if @child.empty?
 			return false
 		else
 			return true
+		end
+	end
+	def unique()
+		if @child.include? self and @child.length == 1
+			return true
+		else
+			return false
 		end
 	end
 
@@ -46,6 +53,10 @@ end
 class WordGraph
 	def initialize
 		@word_objs = {}
+	end
+
+	def has_neighbors(homer)
+		return self.recover_node(homer).has_children
 	end
 
 	def add_node(node)
@@ -68,7 +79,59 @@ class WordGraph
 		@word_objs.fetch(parent).add_edge(@word_objs[child])
 	end
 
-	def [](name)
-		"#{@word_objs[name].rep}" "#{@word_objs[name]}"
+	def recover_node(parent)
+		begin
+			return @word_objs.fetch(parent)
+		rescue Exception => e
+			puts e
+		end
 	end
+
+	def [](name)
+		begin
+			"#{@word_objs[name].rep}" "#{@word_objs[name]}"
+		rescue NoMethodError => e
+			puts "#{name} does not currently exist in the Word Graph"
+		end
+	end
+	
+	def nodes_with_neighbors()
+		node_bool = []
+		@word_objs.each do |w|
+			i = 0
+			node = self.recover_node(w[i])
+			if node.has_children
+				puts node
+				node_bool.push(node)
+			end
+			i +=1
+		end
+		return node_bool
+	end
+
+	def nodes_without_neighbors
+		node_bool = []
+		@word_objs.each do |w|
+			i = 0
+			node = self.recover_node(w[i])
+			if !node.has_children
+				node_bool.push(node)
+			end
+			i +=1
+		end
+		return node_bool
+	end
+	def nodes_reflexive
+		node_bool = []
+		@word_objs.each do |w|
+			i = 0
+			node = self.recover_node(w[i])
+			if node.unique
+				node_bool.push(node)
+			end
+			i +=1
+		end
+		return node_bool
+	end
+
 end
