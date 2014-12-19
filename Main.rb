@@ -1,9 +1,9 @@
-require 'CrushAnalysis.rb'
+require './CrushAnalysis.rb'
 
 CA = CrushAnalysis.new("WRIGHT_CRUSHES_asText.txt","WRIGHT_CRUSHES_asText.txt", "StopWords.txt")
 print "\a"
-keyboard = STDIN.gets.chomp
 puts "Options:\nFind\nHTML\nPrint Tweets\nGo To\nLoad\nSave"
+keyboard = STDIN.gets.chomp
 while (true)
   puts "Options:\nFind\nHTML\nPrint Tweets\nLoad\nSave"
   if (keyboard.include? "Find" or keyboard.include? "find")
@@ -37,8 +37,6 @@ while (true)
     end
 
   else
-    puts "#{keyboard} not supported."
-
     keyboard = STDIN.gets.chomp
   end
 end
