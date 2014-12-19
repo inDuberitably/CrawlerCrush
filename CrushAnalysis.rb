@@ -4,7 +4,11 @@ class CrushAnalysis
   def initialize (tweets,tweets_arr, stopwords)
     start = Time.now
     puts start
-    @original_target = define_target(tweets)
+=begin
+Start the default amount of tweets to be discovered.
+The higher the value, the higher the computation time.            
+=end
+    @original_target = define_target(tweets,0,250)
     @stop_word_dictionary = File.open(stopwords).read
     @stop_time_dictionary = File.open(stopwords).read
     @stop_time_arr = File.open(stopwords).read.split("\n")
@@ -16,14 +20,16 @@ class CrushAnalysis
 
     finish = Time.now
     puts finish
-    puts "Operational captain\n#{(start-finish)*1000}"
+  end
+  def redefine_target_sector(target,start,finish)
+    @original_target = define_target(target, start,finish)
   end
 
-  def define_target(tweets)
+  def define_target(tweets,start,finish)
     tweety = IO.readlines(tweets)
-    i = 0
+    i = start
     @original_target = ""
-    while i <= 250
+    while i <= finish
       @original_target << tweety[i]
       i +=1
     end
@@ -124,11 +130,11 @@ class CrushAnalysis
   def find_context(target_context)
     if @original_target.downcase.include? target_context.downcase or @original_target.upcase.include? target_context.upcase
       begin
-        clue =	@word_adjacency_list.recover_node(target_context)
+        clue =  @word_adjacency_list.recover_node(target_context)
         self.print_indices(clue.word)
         puts "#{clue.rep}#{clue.to_s}\n"
       rescue Exception => e
-      	puts "#{target_context} is a part of a word\n we'll find partial context soon"
+        puts "#{target_context} is a part of a word\n we'll find partial context soon"
       end
     else
       puts "couldn't find #{target_context} :("
@@ -195,6 +201,6 @@ h1 {
     most_used_words.close()
   end
 
-  private  :define_target, :define_target_arr, :create_word_obj, :generate_graph
+  private  :define_target, :create_word_obj, :generate_graph
 
 end
