@@ -30,7 +30,7 @@ while (true)
     File.open('saved_session', 'w+') do |f|
       Marshal.dump(CA, f)
     end
-
+    puts "saved_session created."
   elsif keyboard.eql? "Reload" or keyboard.eql? "reload"
     prints "File to read from: "
     file=keyboard
