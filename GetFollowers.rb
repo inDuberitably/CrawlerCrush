@@ -4,9 +4,19 @@ class GetFollowers
   public
   def initialize()
     @follower_arr = get_follower_info()
+    @follower_hash = generate_hash()
+  end
+  def nothing_but_names() #I get one free funny method name, right?
+    return @follower_hash.keys
+  end
+  def follower_arr
+    return @follower_arr
   end
   def [](index)
     return @follower_arr[index]
+  end
+  def follower_hash
+    return @follower_hash
   end
   def get_follower_info()
 =begin
@@ -50,15 +60,36 @@ puts the followers into an array for later use
     name = ""
     handle = ""
     bio = ""
-    while i <= arr.length
-      name = arr[i]
+    pt="Protected Tweets"
+    while i < arr.length
+      if arr[i].include? pt and arr[i].split(/\s/).length == 4 #check for protected tweet
+        name_arr = arr[i].split
+        first_n = name_arr[0] + " "
+        last_n = name_arr[1]
+        last_n.gsub(/[\W]/, "")
+        first_n << last_n
+        name = first_n
+        name.gsub!(/(\(|\[).+(\)|\])/,"")
+        # [^:(:);)]
+      elsif arr[i].split(/\s/).length == 2 #full name is already out in the open
+        name = arr[i]
+
+      elsif arr[i].include? "@" and arr[i].split.length == 1 #handle
+        handle = arr[i]
+      else #bio
+        bio = arr[i]
+
+        @follower_arr << Follower.new(name,handle,bio)
+      end
       i+=1
-      handle = arr[i]
-      i+=1
-      bio = arr[i]
-      i+=1
-      @follower_arr << Follower.new(name,handle,bio)
     end
+
     return @follower_arr
+  end
+=begin
+ remove names that may be duplicates.       
+=end
+  def generate_hash()
+    @follower_hash = Hash[@follower_arr.map { |follower| [follower.name, follower]}]
   end
 end
