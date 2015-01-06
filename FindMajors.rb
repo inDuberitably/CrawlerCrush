@@ -1,7 +1,8 @@
 require 'rubygems'
 require 'watir-webdriver'
+require "watir-webdriver/wait"
 require './GetFollowers.rb'
-
+puts "Loading login info from 'loginInfo.txt'"
 =begin
 load login info
 =end
@@ -11,12 +12,12 @@ userInfo.each_line do |w|
   w.split('\n').each {|x| loginInfo <<x}
 end
 
-
+puts "Logging in"
 =begin
 pass through the login
 =end
 browser = Watir::Browser.new :firefox
-
+puts "using #{browser.name}\nopening: http://wings.wright.edu/cp/home/displaylogin"
 browser.goto 'http://wings.wright.edu/cp/home/displaylogin'
 
 browser.text_field(:name => 'user').set "#{loginInfo[0]}"
@@ -30,8 +31,8 @@ browser.button(:name => 'login_btn').click
 Check if we're at the right url
 =end
 if browser.url == 'http://wings.wright.edu/render.userLayoutRootNode.uP?uP_root=root'
-  puts "login complete"
-  browser.goto("http://www.wright.edu/wings/channels/search2.html")
+  puts "Login complete"
+  browser.goto("http://www.wright.edu/wings/channels/search.html")
 else
   puts "failed to login"
   exit
@@ -39,9 +40,44 @@ end
 
 =begin
 use followers from GetFollowers.rb
+arr[6] = Major: Some university major
+arr[4] = College: Some college
 =end
 
 WSU_Names = GetFollowers.new()
-if browser.text_field(:name => 'q').exist?
-  browser.text_field(:name => 'q').set "#{WSU_Names[0].name}"
+i = WSU_Names.nothing_but_names.length # number of entries left to search
+puts "#{WSU_Names.nothing_but_names.length} followers to be searched"
+name_arr = WSU_Names.nothing_but_names
+majors_txt =open("#WC_majors.txt", "w")
+colleges_txt =open("#WC_colleges.txt", "w")
+name_arr.each do |name|
+  if browser.text_field(:name => 'q').exist?
+    vip = name.scan(/\w+/)
+    if vip.length == 2
+      puts "Searching for #{vip[0]} #{vip[1]}"
+      browser.text_field(:name => 'q').set "#{vip[0]} #{vip[1]}"
+      browser.send_keys :enter
+      if browser.text.include? "Search Again?"
+        name_bool = browser.text.include?(vip[0]) and browser.text.include?(vip[1])
+        if !browser.text.include? "Nothing matches your search." and name_bool and browser.text.split(/\n/).length <=14
+          arr = browser.text.split(/\n/)
+          colleges_txt.write(arr[4] + "\n")
+          majors_txt.write(arr[6] +"\n")
+          puts "#{arr[6]}"
+        elsif browser.text.split(/\n/).length > 14
+          puts browser.text.split(/\n/).length
+          puts "too many entries to determine major accurately."
+        else
+          puts "nada"
+        end
+      end
+    else
+      puts "nada"
+    end
+  else
+    puts "Element does not exist"
+  end
+  browser.goto("http://www.wright.edu/wings/channels/search.html")
+  i -=1
+  puts i
 end
