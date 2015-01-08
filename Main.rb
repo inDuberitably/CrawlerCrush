@@ -1,7 +1,7 @@
 require './CrushAnalysis.rb'
 if !File.exist?('saved_session')
   puts "Generating new session: "
-  CA = CrushAnalysis.new("WRIGHT_CRUSHES_asText.txt","WRIGHT_CRUSHES_asText.txt", "StopWords.txt")
+  CA = CrushAnalysis.new("WRIGHT_CRUSHES_asText.txt", "StopWords.txt")
 else
   File.open('saved_session') do |f|
     puts "saved_session loading..."
@@ -26,21 +26,24 @@ while (true)
     File.delete("saved_session")
     puts "saved_session was deleted."
   elsif keyboard.eql? "Save" or keyboard.eql? "save"
-
     File.open('saved_session', 'w+') do |f|
       Marshal.dump(CA, f)
     end
     puts "saved_session created."
   elsif keyboard.eql? "Reload" or keyboard.eql? "reload"
-    prints "File to read from: "
-    file=keyboard
-    puts file.length
-    print "Starting point"
-    starting =keyboard
-    print "Ending point"
-    ending = keyboard
-    CA.redefine_target_sector(file,starting,ending)
+    puts "File to read from: "
+    file=STDIN.gets.chomp
+    count = %x{wc -l < "#{file}"}.to_i
+    if (count > 0)
+      puts "#{count} lines to be read from."
+      puts "Starting point"
+      starting = STDIN.gets.chomp
+      puts "Ending point"
+      ending = STDIN.gets.chomp
 
+      CA.redefine_target_sector(file,starting.to_i,ending.to_i)
+      puts "Reloaded with #{file}"
+    end
   elsif keyboard.eql? "go to" or keyboard.eql? "Go To"
     puts "Tweet or Word?"
     keyboard = STDIN.gets.chomp

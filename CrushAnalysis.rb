@@ -1,7 +1,7 @@
 require './WordGraph'
 class CrushAnalysis
   attr_accessor :target_text_hash, :target_words_obj_arr, :original_target_arr
-  def initialize (tweets,tweets_arr, stopwords)
+  def initialize (tweets, stopwords)
     start = Time.now
     puts start
 =begin
@@ -10,10 +10,8 @@ The higher the value, the higher the computation time.
 =end
     @original_target = define_target(tweets,0,250)
     @stop_word_dictionary = File.open(stopwords).read
-    @stop_time_dictionary = File.open(stopwords).read
-    @stop_time_arr = File.open(stopwords).read.split("\n")
     @stop_words_arr = File.open(stopwords).read.split("\n")
-    @original_target_arr =define_target_arr(tweets_arr)
+    @original_target_arr =define_target_arr(tweets)
     @target_text_hash = create_hash(@original_target)
     @target_words_obj_arr = create_word_obj()
     @word_adjacency_list = generate_graph()
@@ -22,7 +20,15 @@ The higher the value, the higher the computation time.
     puts finish
   end
   def redefine_target_sector(target,start,finish)
+    puts "redefining target"
     @original_target = define_target(target, start,finish)
+    @original_target_arr =define_target_arr(target)
+    puts "redefining hash"
+    @target_text_hash = create_hash(@original_target)
+    puts "redefining Word Objects"
+    @target_words_obj_arr = create_word_obj()
+    puts "redefining Word Graph"
+    @word_adjacency_list = generate_graph()
   end
 
   def define_target(tweets,start,finish)
@@ -55,7 +61,7 @@ The higher the value, the higher the computation time.
       txt.downcase!
       words = txt.scan(/[(\W+'\w+)]([^ -?".!,()]*)/).flatten.select{|w| w.length > 2}
       words.each do |word|
-        if !@stop_words_arr.include?(word) or !@stop_time_arr.include?(word)
+        if !@stop_words_arr.include?(word)
           target_text_hash[word] ||= 0
           target_text_hash[word] += 1
         end
@@ -75,7 +81,6 @@ The higher the value, the higher the computation time.
       x = 0
       temp_arr = []
       word_obj.word = key
-      word_obj.occurences = value
       @original_target_arr.each do |tweet|
         tweet.gsub!(/["]/, "")
         tweet.downcase!
@@ -85,6 +90,7 @@ The higher the value, the higher the computation time.
           x += 1
         end
         i += 1
+        word_obj.occurences = temp_arr.length
         word_obj.indices = temp_arr.compact
       end
       words_arr << word_obj
@@ -186,7 +192,7 @@ body {
 }
 
 h1 {
-    color: #{color_list[6]};
+    color: #000000;
 }
 #{hashed_dump}</style>
 </head>
