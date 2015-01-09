@@ -58,7 +58,10 @@ class WordGraph
   def has_neighbors(homer)
     return self.recover_node(homer).has_children
   end
-
+  def has_node(node)
+    return self.recover_node(node).nil?
+  end
+  
   def add_node(node)
     @word_objs[node.word] = node
   end
@@ -135,3 +138,11 @@ class WordGraph
   end
 
 end
+=begin
+WG = WordGraph.new
+W0 = WordObj.new("yolo", 1, [3])
+W1 = WordObj.new("swag", 1, [3])
+W2 = WordObj.new("skrilla", 1, [3])
+W3 = WordObj.new("monkey", 1, [3])
+puts WG.has_node "skrilla"
+=end

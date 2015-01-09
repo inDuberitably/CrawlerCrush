@@ -15,7 +15,6 @@ The higher the value, the higher the computation time.
     @target_text_hash = create_hash(@original_target)
     @target_words_obj_arr = create_word_obj()
     @word_adjacency_list = generate_graph()
-
     finish = Time.now
     puts finish
   end
@@ -127,24 +126,48 @@ The higher the value, the higher the computation time.
     puts @word_adjacency_list.nodes_reflexive
 
   end
+
   def print_tweets()
     puts @original_target
   end
+
   def print_graph_neighbors()
     puts @word_adjacency_list.nodes_with_neighbors()
   end
+
   def find_context(target_context)
-    if @original_target.downcase.include? target_context.downcase or @original_target.upcase.include? target_context.upcase
+    if @original_target.downcase.include? target_context.downcase or !@word_adjacency_list.has_node(target_context)
       begin
         clue =  @word_adjacency_list.recover_node(target_context)
         self.print_indices(clue.word)
         puts "#{clue.rep}#{clue.to_s}\n"
+        return clue
       rescue Exception => e
         puts "#{target_context} is a part of a word\n we'll find partial context soon"
       end
     else
       puts "couldn't find #{target_context} :("
     end
+  end
+
+
+  def deep_find_context(word_one,word_two)
+    word_one = find_context(word_one)
+    word_two = find_context(word_two)
+    deep_word = WordObj.new("", 0, [])
+    deep_word.indices = word_one.indices & word_two.indices
+    deep_word.word = word_one.word + " & " + word_two.word
+    deep_word.occurences = deep_word.indices.length
+    @word_adjacency_list.add_node(deep_word)
+
+    self.print_indices(deep_word.word)
+    puts "#{deep_word.rep}"
+    puts "Added #{deep_word.word} to the list"
+    return deep_word
+  end
+
+  def tweet_arr(index)
+    return original_target_arr[index]
   end
 
   def print_indices(key)
@@ -157,6 +180,7 @@ The higher the value, the higher the computation time.
       i +=1
     end
   end
+
   def generate_html()
     color_list = File.open("colors.txt").read.split("\n")
     i = 0
