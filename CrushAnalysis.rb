@@ -60,7 +60,7 @@ The higher the value, the higher the computation time.
       txt.downcase!
       words = txt.scan(/[(\W+'\w+)]([^ -?".!,()]*)/).flatten.select{|w| w.length > 2}
       words.each do |word|
-        if !@stop_words_arr.include?(word)
+        if !@stop_words_arr.include?(word.downcase)
           target_text_hash[word] ||= 0
           target_text_hash[word] += 1
         end
@@ -143,7 +143,8 @@ The higher the value, the higher the computation time.
         puts "#{clue.rep}#{clue.to_s}\n"
         return clue
       rescue Exception => e
-        puts "#{target_context} is a part of a word\n we'll find partial context soon"
+        puts "#{target_context}\n we'll find partial context soon\nOR\n #{target_context} is in the stop_word_dictionary"
+        return nil
       end
     else
       puts "couldn't find #{target_context} :("
@@ -154,18 +155,21 @@ The higher the value, the higher the computation time.
   def deep_find_context(word_one,word_two)
     word_one = find_context(word_one)
     word_two = find_context(word_two)
-    deep_word = WordObj.new("", 0, [])
-    deep_word.indices = word_one.indices & word_two.indices
-    deep_word.word = word_one.word + " & " + word_two.word
-    deep_word.occurences = deep_word.indices.length
-    @word_adjacency_list.add_node(deep_word)
+    if (!word_one.nil? or !word_two.nil?)
+      deep_word = WordObj.new("", 0, [])
+      deep_word.indices = word_one.indices & word_two.indices
+      deep_word.word = word_one.word + " & " + word_two.word
+      deep_word.occurences = deep_word.indices.length
+      @word_adjacency_list.add_node(deep_word)
 
-    self.print_indices(deep_word.word)
-    puts "#{deep_word.rep}"
-    puts "Added #{deep_word.word} to the list"
-    return deep_word
+      self.print_indices(deep_word.word)
+      puts "#{deep_word.rep}"
+      puts "Added #{deep_word.word} to the list"
+      return deep_word
+    else
+      puts "one value returned null"
+    end
   end
-
   def tweet_arr(index)
     return original_target_arr[index]
   end
@@ -187,11 +191,17 @@ The higher the value, the higher the computation time.
     paragraph_class_list = []
     each_word_list = []
     each_word_color_list = []
+    count = %x{wc -l < "colors.txt"}.to_i
+    generator = Random.new
+    font_size_list = ["100%", "150%", "200%", "250%"]
     while i < @target_words_obj_arr.length
+    rand_size = generator.rand(0...4)
+    
+    rand_color = generator.rand(0...count)
       each_word = ".a-#{i}"
-      occ = @target_words_obj_arr[i].occurences
-      each_word_color="{\n\tcolor: #{color_list[occ]};\n} \n\n"
-      paragraph_class = "<p class=\"a-#{i}\">#{@target_words_obj_arr[i].word}</p>\n"
+      each_word_color="{\n\tcolor: #{color_list[rand_color]}; font-size: #{font_size_list[rand_size]}\n} \n\n"
+
+      paragraph_class = "<span class=\"a-#{i}\">#{@target_words_obj_arr[i].word}</span>\n"
       each_word_list << each_word
       each_word_color_list << each_word_color
       paragraph_class_list << paragraph_class
@@ -223,7 +233,9 @@ h1 {
 
 <body>
 <h1>Results</h1>
-<p>#{para}</p>
+<p>
+#{para}
+</p>
 </body>
 </html>"
     most_used_words = File.open("most_used_words.html", "w")
