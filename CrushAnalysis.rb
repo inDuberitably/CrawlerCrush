@@ -58,7 +58,7 @@ The higher the value, the higher the computation time.
     tweets.each_line do |tweet|
       txt = tweet
       txt.downcase!
-      words = txt.scan(/[(\W+'\w+)]([^ -?".!,()]*)/).flatten.select{|w| w.length > 2}
+      words = txt.scan(/[(\W+'\w+)]([^ -?".!@,():;]*)/).flatten.select{|w| w.length > 2}
       words.each do |word|
         if !@stop_words_arr.include?(word.downcase)
           target_text_hash[word] ||= 0
@@ -70,7 +70,6 @@ The higher the value, the higher the computation time.
     target_text_hash=Hash[target_text_hash.sort_by{|k,v|v}]
     return target_text_hash
   end
-
   def create_word_obj()
     index_hash =@target_text_hash
     words_arr = []
@@ -118,15 +117,6 @@ The higher the value, the higher the computation time.
     puts @word_adjacency_list[key]
   end
 
-  def print_most_used_words()
-    @target_text_hash.each{|key, value| puts "#{key} : #{value}"  }
-  end
-
-  def print_unique_words()
-    puts @word_adjacency_list.nodes_reflexive
-
-  end
-
   def print_tweets()
     puts @original_target
   end
@@ -143,7 +133,7 @@ The higher the value, the higher the computation time.
         puts "#{clue.rep}#{clue.to_s}\n"
         return clue
       rescue Exception => e
-        puts "#{target_context}\n we'll find partial context soon\nOR\n #{target_context} is in the stop_word_dictionary"
+        puts "#{target_context}\n we'll find partial context soon\nOR\n \"#{target_context}\" is in the stop_word_dictionary"
         return nil
       end
     else
@@ -184,7 +174,25 @@ The higher the value, the higher the computation time.
       i +=1
     end
   end
+  def stats()
+    @target_text_hash.each do |w|
+      puts "#{w[0]}:\t#{w[1]}"
+    end
+    puts "TWENTY MOST USED WORDS LOLOL"
+    v = @target_text_hash.values.reverse[0..20]
+    h = @target_text_hash.keys.reverse[0..20]
+    Hash[h.zip(v)].sort_by{|k,v|v}.each do |w|
+      puts "#{w[0]}:\t#{w[1]}"
+    end
 
+    puts "\nNumber of total words used:"
+    puts @target_text_hash.inject(0){|sum, w| sum += w[1]}
+    puts "\nNumber of different words:"
+    puts @target_text_hash.length
+    puts "\nLongest word:"
+    puts @target_text_hash.max_by{|k,v| k.length}[0]
+
+  end
   def generate_html()
     color_list = File.open("colors.txt").read.split("\n")
     i = 0
@@ -193,13 +201,13 @@ The higher the value, the higher the computation time.
     each_word_color_list = []
     count = %x{wc -l < "colors.txt"}.to_i
     generator = Random.new
-    font_size_list = ["100%", "150%", "200%", "250%"]
+    font_size_list = ["75%","100%", "150%", "200%", "250%"]
+    @target_text_hash
     while i < @target_words_obj_arr.length
-    rand_size = generator.rand(0...4)
-    
-    rand_color = generator.rand(0...count)
+      rand_size = generator.rand(0...font_size_list.length)
+      rand_color = generator.rand(0...count)
       each_word = ".a-#{i}"
-      each_word_color="{\n\tcolor: #{color_list[rand_color]}; font-size: #{font_size_list[rand_size]}\n} \n\n"
+      each_word_color="{\n\tcolor: #{color_list[rand_color]}; font-size: #{font_size_list[rand_size];}\n\n} \n\n"
 
       paragraph_class = "<span class=\"a-#{i}\">#{@target_words_obj_arr[i].word}</span>\n"
       each_word_list << each_word

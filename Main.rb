@@ -46,6 +46,7 @@ puts "Press enter to begin:"
 keyboard = STDIN.gets.chomp
 while (true)
   puts "\sOptions:Find\tHTML\tReload Text\tPrint Tweets\tDelete\tSave\tMore"
+  keyboard.downcase!
   if (keyboard.include? "Find".downcase or keyboard.eql? "Find Deep".downcase)
     if(!keyboard.eql? "Find Deep".downcase)
       print "Enter the word you would like to find: "
@@ -56,10 +57,13 @@ while (true)
       word_one = STDIN.gets.chomp
       puts "Enter the 2nd word you would like to find: "
       word_two = STDIN.gets.chomp
-      CA.deep_find_context(word_one, word_two)
-      
+      begin
+        CA.deep_find_context(word_one, word_two)
+      rescue  NoMethodError => e 
+      end
     end
-
+  elsif keyboard.eql? "Stats".downcase
+      CA.stats()
 
   elsif keyboard.eql? "HTML".downcase
     CA.generate_html()
