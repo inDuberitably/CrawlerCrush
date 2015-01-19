@@ -1,9 +1,8 @@
 require './Follower.rb'
 
 class GetFollowers
-  public
-  def initialize()
-    @follower_arr = get_follower_info()
+  def initialize(file)
+    @follower_arr = get_follower_info(file)
     @follower_hash = generate_hash()
   end
   def nothing_but_names() #I get one free funny method name, right?
@@ -18,12 +17,12 @@ class GetFollowers
   def follower_hash
     return @follower_hash
   end
-  def get_follower_info()
+  def get_follower_info(file)
 =begin
 makes the text file from the followers page given from twitter
 parses out the ugly " Follow" and "User Actions"
 =end
-    target_text = "WRIGHT_CRUSHES_followers.txt"
+    target_text = file
     target_file = File.open(target_text)
     follow = " Follow"
     user_actions = "User Actions"
@@ -63,11 +62,11 @@ puts the followers into an array for later use
     pt="Protected Tweets"
     while i < arr.length
       if arr[i].include? pt and arr[i].split(/\s/).length == 4 #check for protected tweet
-        name_arr = arr[i].split
+        name_arr = arr[i].strip.split
         first_n = name_arr[0] + " "
         last_n = name_arr[1]
-        last_n.gsub(/[\W]/, "")
-        first_n << last_n
+        last_n.gsub!(/[\W]/, "")
+        first_n << last_n.strip
         name = first_n
         name.gsub!(/(\(|\[).+(\)|\])/,"")
         # [^:(:);)]
