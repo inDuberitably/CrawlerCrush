@@ -54,7 +54,6 @@ puts "#{WSU_Names.nothing_but_names.length} followers to be searched"
 name_arr = WSU_Names.nothing_but_names
 majors_txt =open("#WC_majors.txt", "w")
 colleges_txt =open("#WC_colleges.txt", "w")
-i = WSU_Names.nothing_but_names.length # number of entries left to search
 puts "Follower to start at: "
 num = STDIN.gets.chomp
 num = num.to_i
@@ -64,6 +63,7 @@ junk_arr = []
 end
 name_arr = junk_arr
 k = 0
+i = name_arr.length # number of entries left to search
 name_arr.each do |name|
   if browser.text_field(:name => 'q').exist?
     vip = name.scan(/\w+/)
