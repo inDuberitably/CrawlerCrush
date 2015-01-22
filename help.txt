@@ -1,0 +1,21 @@
+Find - Returns the specific word object.
+
+Find Deep - Returns the intersection of indicies of two specific word objects.
+
+Findings - Returns the results of Find Deep.
+
+HTML - Generates an html page color coded randomly.
+
+HTML Most - Generates an html page based off the most used words.
+
+Reload - Reloads the text loaded in CrushAnalysis. To lower the computation time, input a starting point and an ending point.
+
+Save - Using Ruby's Marshal function, saves the contents of CrushAnalysis for later use.
+
+Load - Loads another saved_session.
+
+Delete - Deletes the current session of CrushAnalysis.
+
+Print - Prints all the stored tweets. By default, the first session is loaded with 0 - 250 tweets.
+
+Help - Reads this text file - how much more specific can I be?   	  

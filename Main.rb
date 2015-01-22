@@ -24,13 +24,14 @@ def goto()
   elsif keyboard.eql? "word".downcase
     puts "Word to find:"
     keyboard = STDIN.gets.chomp
-
     puts CA[keyboard]
   else
     puts "unsupported operation"
   end
 end
-
+def help()
+  puts File.read("help.txt")
+end
 
 if !File.exist?('saved_session')
   puts "Generating new session: "
@@ -45,7 +46,7 @@ print "\a"
 puts "Press enter to begin:"
 keyboard = STDIN.gets.chomp
 while (true)
-  puts "\sOptions:Find\tHTML\tReload Text\tPrint Tweets\tDelete\tSave\tMore"
+  puts "\sOptions:Find\tHTML\tReload Text\tPrint Tweets\tDelete\tSave\tHelp"
   keyboard.downcase!
   if (keyboard.include? "Find".downcase or keyboard.eql? "Find Deep".downcase)
     if(!keyboard.eql? "Find Deep".downcase)
@@ -59,11 +60,11 @@ while (true)
       word_two = STDIN.gets.chomp
       begin
         CA.deep_find_context(word_one, word_two)
-      rescue  NoMethodError => e 
+      rescue  NoMethodError => e
       end
     end
   elsif keyboard.eql? "Stats".downcase
-      CA.stats()
+    CA.stats()
 
   elsif keyboard.eql? "HTML".downcase
     CA.generate_html()
@@ -82,6 +83,8 @@ while (true)
     reload()
   elsif keyboard.eql? "go to".downcase
     goto()
+  elsif keyboard.eql? "help".downcase
+    help()
   end
   keyboard = STDIN.gets.chomp
 end
