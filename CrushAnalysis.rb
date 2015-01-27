@@ -18,6 +18,7 @@ The higher the value, the higher the computation time.
     finish = Time.now
     puts finish
   end
+
   def redefine_target_sector(target,start,finish)
     puts "redefining target"
     @original_target = define_target(target, start,finish)
@@ -33,13 +34,14 @@ The higher the value, the higher the computation time.
   def define_target(tweets,start,finish)
     tweety = IO.readlines(tweets)
     i = start
-    @original_target = ""
     while i <= finish
       @original_target << tweety[i]
       i +=1
     end
     return @original_target
   end
+
+
 
   def define_target_arr(tweets)
     i = 0
@@ -70,6 +72,7 @@ The higher the value, the higher the computation time.
     target_text_hash=Hash[target_text_hash.sort_by{|k,v|v}]
     return target_text_hash
   end
+
   def create_word_obj()
     index_hash =@target_text_hash
     words_arr = []
@@ -93,6 +96,8 @@ The higher the value, the higher the computation time.
       end
       words_arr << word_obj
     end
+    words_arr.sort_by{|word_obj| word_obj.occurences}
+    words_arr.reverse!
     return words_arr
   end
 
@@ -141,7 +146,6 @@ The higher the value, the higher the computation time.
     end
   end
 
-
   def deep_find_context(word_one,word_two)
     word_one = find_context(word_one)
     word_two = find_context(word_two)
@@ -187,10 +191,15 @@ The higher the value, the higher the computation time.
 
     puts "\nNumber of total words used:"
     puts @target_text_hash.inject(0){|sum, w| sum += w[1]}
+    puts "Number of word objects used:"
+    puts @word_adjacency_list.length
     puts "\nNumber of different words:"
     puts @target_text_hash.length
     puts "\nLongest word:"
     puts @target_text_hash.max_by{|k,v| k.length}[0]
+
+  end
+  def generate_html_most()
 
   end
   def generate_html()
@@ -201,14 +210,14 @@ The higher the value, the higher the computation time.
     each_word_color_list = []
     count = %x{wc -l < "colors.txt"}.to_i
     generator = Random.new
+
     font_size_list = ["75%","100%", "150%", "200%", "250%"]
-    @target_text_hash
     while i < @target_words_obj_arr.length
       rand_size = generator.rand(0...font_size_list.length)
       rand_color = generator.rand(0...count)
+      rand_rotate = generator.rand(0...1)
       each_word = ".a-#{i}"
       each_word_color="{\n\tcolor: #{color_list[rand_color]}; font-size: #{font_size_list[rand_size];}\n\n} \n\n"
-
       paragraph_class = "<span class=\"a-#{i}\">#{@target_words_obj_arr[i].word}</span>\n"
       each_word_list << each_word
       each_word_color_list << each_word_color
@@ -221,6 +230,8 @@ The higher the value, the higher the computation time.
       hashed_dump = hashed_dump + kl + vl
     end
     para = ""
+    paragraph_class_list.shuffle!
+
     paragraph_class_list.each do |v|
       para = para + v
     end
@@ -228,6 +239,7 @@ The higher the value, the higher the computation time.
     "<!DOCTYPE html>
 <html>
 <head>
+<script src=\"https://code.jquery.com/jquery-2.1.3.min.js\" type=\"text\\javascript\"></script>
 <style>
 body {
     color: #{color_list[0]};
@@ -246,7 +258,7 @@ h1 {
 </p>
 </body>
 </html>"
-    most_used_words = File.open("most_used_words.html", "w")
+    most_used_words = File.open("random_words.html", "w")
     most_used_words.write(text)
     most_used_words.close()
   end

@@ -7,10 +7,10 @@ def reload()
   if (count > 0)
     puts "#{count} lines to be read from."
     puts "Starting point"
-    starting = STDIN.gets.chomp
+    starting = STDIN.gets.to_i
     puts "Ending point"
-    ending = STDIN.gets.chomp
-    CA.redefine_target_sector(file,starting.to_i,ending.to_i)
+    ending = STDIN.gets.to_i
+    CA.redefine_target_sector(file,starting,ending)
     puts "Reloaded with #{file}"
   end
 end
@@ -81,6 +81,22 @@ while (true)
     puts "saved_session created."
   elsif keyboard.eql? "Reload".downcase
     reload()
+  elsif keyboard.eql? "Save as".downcase
+
+    puts "Save as...?"
+    keyboard = STDIN.gets.chomp
+    file_name = "#{keyboard}_saved_session"
+    File.open(file_name, 'w+') do |f|
+      Marshal.dump(CA, f)
+    end
+
+  elsif keyboard.eql? "Load".downcase
+    puts "Load ..."
+    keyboard = STDIN.gets.chomp
+    File.open("#{keyboard}") do |f|
+      puts "saved_session loading..."
+      CA = Marshal.load(f)
+    end
   elsif keyboard.eql? "go to".downcase
     goto()
   elsif keyboard.eql? "help".downcase
