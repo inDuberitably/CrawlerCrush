@@ -19,5 +19,4 @@ Major Distribution http://bit.ly/1vNbs5t
 
 ![](http://i.imgur.com/n5PDSoD.png)
 
-
-
+![](http://i.imgur.com/cD9m1cm.png)
