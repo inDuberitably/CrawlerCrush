@@ -10,7 +10,7 @@ This is an ongoing project, but here are some of my findings.
 
 #To the Girl With Eyes
 
-Video Teaser: goo.gl/r8d7Pn
+Video Teaser: http://goo.gl/r8d7Pn
 
 Major Distribution http://bit.ly/1vNbs5t
 
